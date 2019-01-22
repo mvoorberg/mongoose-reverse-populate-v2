@@ -1,49 +1,41 @@
-var { keyBy, idMatch, idsMatch, rando } = require('../lib/populateUtils');
-var reversePopulate = require('../index.js');
+const { keyBy, idMatch, idsMatch, rando, getSelectString } = require('../lib/populateUtils');
+const reversePopulate = require('../index.js');
 
-var assert = require('assert');
-var async = require('async');
-var mongoose = require('mongoose');
+const assert = require('assert');
+const async = require('async');
+const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/mongoose-reverse-populate-test', {
-	useNewUrlParser: true
-});
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
 
-describe('reverse populate', function() {
+describe('Connecting mongoose', function() {
 
-	describe('multiple results', function() {
-		it('should keyBy', () => {
-			const items = [
-				{ name: 'foo', input: 'bar' },
-				{ name: 'baz', input: 'zle' }
-			];
-			const result = keyBy(items, 'name', 'input');
-			const expectedResult = {
-				foo: { name: 'foo', input: 'bar' },
-				baz: { name: 'baz', input: 'zle' }
-			};
-			assert.deepEqual(result, expectedResult);
-		})
+	before(() => {
+		mongoose.connect('mongodb://localhost/mongoose-reverse-populate-test', {
+			useNewUrlParser: true
+		});		
+	});
+
+	after(() => {
+		mongoose.disconnect();		
 	});
 
 
 	describe('multiple results', function() {
-		var Category, Post, Author;
-		var categories, posts, authors;
+		let Category, Post, Author;
+		let categories, posts, authors;
 
 		//define schemas and models for tests
 		before(function(done) {
 			//a category has many posts
-			var categorySchema = new Schema({
+			const categorySchema = new Schema({
 				name: String,
 			});
 			Category = mongoose.model('Category', categorySchema);
 
 			//a post can have many categories
 			//a post can ONLY have one author
-			var postSchema = new Schema({
+			const postSchema = new Schema({
 				title: String,
 				categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
 				author: { type: Schema.Types.ObjectId, ref: 'Author' },
@@ -52,7 +44,7 @@ describe('reverse populate', function() {
 			Post = mongoose.model('Post', postSchema);
 
 			//an author has many posts
-			var authorSchema = new Schema({
+			const authorSchema = new Schema({
 				firstName: String,
 				lastName: String
 			});
@@ -136,6 +128,66 @@ describe('reverse populate', function() {
 			});
 		});
 
+		it('should emulate lodash keyBy', (done) => {
+			const items = [
+				{ name: 'foo', input: 'bar' },
+				{ name: 'baz', input: 'zle' }
+			];
+			const result = keyBy(items, 'name', 'input');
+			const expectedResult = {
+				foo: { name: 'foo', input: 'bar' },
+				baz: { name: 'baz', input: 'zle' }
+			};
+			assert.deepEqual(result, expectedResult);
+			done();
+		});
+
+		it('should getSelectString with no change', (done) => {
+			const fieldNames = 'foo bar baz';
+			const requiredId = 'bar';
+			const result = getSelectString(fieldNames, requiredId);
+			assert.equal(result, fieldNames);
+			done();
+		});
+
+		it('should getSelectString with addition', (done) => {
+			const fieldNames = 'foo bar baz';
+			const requiredId = 'fez';
+			const result = getSelectString(fieldNames, requiredId);
+			assert.equal(result, 'foo bar baz fez');
+			done();
+		});
+
+		it('should short circuit on empty modelArray', function(done) {
+			const opts = {
+				modelArray: [],
+				storeWhere: "posts",
+				arrayPop: true,
+				mongooseModel: Post,
+				idField: "categories"
+			};
+			reversePopulate(opts, function(err, catResult) {
+				assert.equal(catResult.length, 0);
+				done();
+			});
+		});
+
+		it('should error on a bad query', function(done) {
+			const opts = {
+				filters: {$ne: 'not valid'}, // This is invalid and will blow up the query!
+				modelArray: categories,
+				storeWhere: "posts",
+				arrayPop: true,
+				mongooseModel: Post,
+				idField: "categories"
+			};
+			reversePopulate(opts, function(err, catResult) {
+				assert(err !== null);
+				assert(catResult === undefined);
+				done();
+			});
+		});
+
 		//populate categories with their associated posts when the relationship is stored on the post model
 		it('should successfully reverse populate a many-to-many relationship', function(done) {
 			const opts = {
@@ -154,8 +206,33 @@ describe('reverse populate', function() {
 				catResult.forEach(function(category) {
 					assert.equal(category.posts.length, 5);
 					idsMatch(category.posts, posts);
+					assert(category.posts[0]._doc !== undefined);
 				});
+				done();
+			});
+		});
 
+		//populate categories with their associated posts when the relationship is stored on the post model
+		it('should successfully reverse populate a many-to-many relationship with lean objects', function(done) {
+			const opts = {
+				modelArray: categories,
+				storeWhere: "posts",
+				arrayPop: true,
+				lean: true,
+				mongooseModel: Post,
+				idField: "categories"
+			};
+			reversePopulate(opts, function(err, catResult) {
+				//expect catResult and categories to be the same
+				assert.equal(catResult.length, 2);
+				idsMatch(catResult, categories);
+
+				//expect each catResult to contain the posts
+				catResult.forEach(function(category) {
+					assert.equal(category.posts.length, 5);
+					idsMatch(category.posts, posts);
+					assert(category.posts[0]._doc === undefined);
+				});
 				done();
 			});
 		});
@@ -239,8 +316,8 @@ describe('reverse populate', function() {
 		});
 
 		it('should \"sort\" the results returned', function(done) {
-			var sortedTitles = posts.map(post => post.title).sort();
-			var opts = {
+			const sortedTitles = posts.map(post => post.title).sort();
+			const opts = {
 				modelArray: authors,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -250,10 +327,10 @@ describe('reverse populate', function() {
 			};
 			reversePopulate(opts, function(err, authResult) {
 				assert.equal(authResult.length, 1);
-				var author = authResult[0];
+				const author = authResult[0];
 
 				assert.equal(author.posts.length, 5);
-				var postTitles = author.posts.map(post => post.title);
+				const postTitles = author.posts.map(post => post.title);
 				assert.deepEqual(sortedTitles, postTitles);
 
 				done();
@@ -263,7 +340,7 @@ describe('reverse populate', function() {
 		//use reverse populate to populate posts within author
 		//use standard populate to nest categories in posts
 		it('should \"populate\" the results returned', function(done) {
-			var opts = {
+			const opts = {
 				modelArray: authors,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -275,7 +352,7 @@ describe('reverse populate', function() {
 				assert.equal(authResult.length, 1);
 				idsMatch(authResult, authors);
 
-				var author = authResult[0];
+				const author = authResult[0];
 				author.posts.forEach(function(post) {
 					assert.equal(post.categories.length, 2);
 					idsMatch(post.categories, categories);
@@ -286,13 +363,13 @@ describe('reverse populate', function() {
 	});
 
 	describe('singular results', function() {
-		var Person, Passport;
-		var person1, person2, passport1, passport2;
+		let Person, Passport;
+		let person1, person2, passport1, passport2;
 
 		//define schemas and models for tests
 		before(function(done) {
 			//a person has one passport
-			var personSchema = new Schema({
+			const personSchema = new Schema({
 				firstName: String,
 				lastName: String,
 				dob: Date
@@ -300,7 +377,7 @@ describe('reverse populate', function() {
 			Person = mongoose.model('Person', personSchema);
 
 			//a passport has one owner (person)
-			var passportSchema = new Schema({
+			const passportSchema = new Schema({
 				number: String,
 				expiry: Date,
 				owner: { type: Schema.Types.ObjectId, ref: 'Person' }
@@ -354,7 +431,7 @@ describe('reverse populate', function() {
 
 		it('should successfully reverse populate a one-to-one relationship', function(done) {
 			Person.find().exec(function(err, persons) {
-				var opts = {
+				const opts = {
 					modelArray: persons,
 					storeWhere: "passport",
 					arrayPop: false,
@@ -376,7 +453,6 @@ describe('reverse populate', function() {
 				});
 			});
 		});
-
 	});
 });
 
