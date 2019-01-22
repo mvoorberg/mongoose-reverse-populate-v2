@@ -1,18 +1,34 @@
+var { keyBy, idMatch, idsMatch, rando } = require('../lib/populateUtils');
 var reversePopulate = require('../index.js');
 
 var assert = require('assert');
 var async = require('async');
-var _ = require('lodash');
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/mongoose-reverse-populate-test');
+mongoose.connect('mongodb://localhost/mongoose-reverse-populate-test', {
+	useNewUrlParser: true
+});
 var Schema = mongoose.Schema;
 
-var rando = function() {
-	return Math.floor(Math.random() * (1 << 24)).toString(16);
-};
 
 describe('reverse populate', function() {
+
+	describe('multiple results', function() {
+		it('should keyBy', () => {
+			const items = [
+				{ name: 'foo', input: 'bar' },
+				{ name: 'baz', input: 'zle' }
+			];
+			const result = keyBy(items, 'name', 'input');
+			const expectedResult = {
+				foo: { name: 'foo', input: 'bar' },
+				baz: { name: 'baz', input: 'zle' }
+			};
+			assert.deepEqual(result, expectedResult);
+		})
+	});
+
+
 	describe('multiple results', function() {
 		var Category, Post, Author;
 		var categories, posts, authors;
@@ -94,18 +110,16 @@ describe('reverse populate', function() {
 		
 		afterEach(function(done) {
 			async.parallel([
-				function(cb) { Category.remove({}, cb); },
-				function(cb) { Post.remove({}, cb); },
-				function(cb) { Author.remove({}, cb); }
+				function(cb) { Category.deleteMany({}, cb); },
+				function(cb) { Post.deleteMany({}, cb); },
+				function(cb) { Author.deleteMany({}, cb); }
 			], done);
 		});
 
-		var required = ["modelArray", "storeWhere", "arrayPop", "mongooseModel", "idField"];
+		const required = ["modelArray", "storeWhere", "arrayPop", "mongooseModel", "idField"];
 		required.forEach(function(fieldName) {
 			it('check mandatory field ' + fieldName, function(done) {
-				var msg = 'Missing mandatory field ';
-
-				var opts = {
+				const opts = {
 					modelArray: categories,
 					storeWhere: "posts",
 					arrayPop: true,
@@ -114,9 +128,9 @@ describe('reverse populate', function() {
 				};
 				delete opts[fieldName];
 
-				reversePopulate(opts, function(err, catResult) {
+				reversePopulate(opts, function(err) {
 					assert.notDeepEqual(err, null);
-					assert.equal(err.message, msg + fieldName);
+					assert.equal(err.message, `Missing mandatory field '${fieldName}'.`);
 					done();
 				});
 			});
@@ -124,7 +138,7 @@ describe('reverse populate', function() {
 
 		//populate categories with their associated posts when the relationship is stored on the post model
 		it('should successfully reverse populate a many-to-many relationship', function(done) {
-			var opts = {
+			const opts = {
 				modelArray: categories,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -148,7 +162,7 @@ describe('reverse populate', function() {
 
 		//populate authors with their associated posts when the relationship is stored on the post model
 		it('should successfully reverse populate a one-to-many relationship', function(done) {
-			var opts = {
+			const opts = {
 				modelArray: authors,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -172,9 +186,9 @@ describe('reverse populate', function() {
 		//test to ensure filtering results works as expected
 		it('should \"filter\" the query results', function(done) {
 			//pick a random post to be filtered (the first one)
-			var firstPost = posts[0];
+			const firstPost = posts[0];
 
-			var opts = {
+			const opts = {
 				modelArray: authors,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -184,7 +198,7 @@ describe('reverse populate', function() {
 			};
 			reversePopulate(opts, function(err, authResult) {
 				assert.equal(authResult.length, 1);
-				var author = authResult[0];
+				const author = authResult[0];
 
 				//the authors posts should exclude the title passed as a filter
 				//there are 10 posts for this author and 1 title is excluded so expect 9
@@ -198,7 +212,7 @@ describe('reverse populate', function() {
 		});
 
 		it('should \"select\" only the desired fields', function(done) {
-			var opts = {
+			const opts = {
 				modelArray: authors,
 				storeWhere: "posts",
 				arrayPop: true,
@@ -208,7 +222,7 @@ describe('reverse populate', function() {
 			};
 			reversePopulate(opts, function(err, authResult) {
 				assert.equal(authResult.length, 1);
-				var author = authResult[0];
+				const author = authResult[0];
 
 				assert.equal(author.posts.length, 5);
 				author.posts.forEach(function(post) {
@@ -225,8 +239,7 @@ describe('reverse populate', function() {
 		});
 
 		it('should \"sort\" the results returned', function(done) {
-			var sortedTitles = _.pluck(posts, "title").sort();
-
+			var sortedTitles = posts.map(post => post.title).sort();
 			var opts = {
 				modelArray: authors,
 				storeWhere: "posts",
@@ -240,7 +253,7 @@ describe('reverse populate', function() {
 				var author = authResult[0];
 
 				assert.equal(author.posts.length, 5);
-				var postTitles =  _.pluck(author.posts, "title");
+				var postTitles = author.posts.map(post => post.title);
 				assert.deepEqual(sortedTitles, postTitles);
 
 				done();
@@ -334,8 +347,8 @@ describe('reverse populate', function() {
 
 		afterEach(function(done) {
 			async.parallel([
-				function(cb) { Person.remove({}, cb); },
-				function(cb) { Passport.remove({}, cb); },
+				function(cb) { Person.deleteMany({}, cb); },
+				function(cb) { Passport.deleteMany({}, cb); },
 			], done);
 		});
 
@@ -351,11 +364,11 @@ describe('reverse populate', function() {
 				//as this is one-to-one result should not be populated inside an array
 				reversePopulate(opts, function(err, personsResult) {
 					personsResult.forEach(function(person) {
-						//if this is person1, check against passport1
 						if (person._id.equals(person1._id)) {
+							//if this is person1, check against passport1
 							idMatch(person.passport, passport1);
-						//if this is person2, check against passport2
 						} else {
+							//if this is person2, check against passport2
 							idMatch(person.passport, passport2);
 						}
 					});
@@ -367,27 +380,3 @@ describe('reverse populate', function() {
 	});
 });
 
-/*
- * Helper functions
-*/
-
-//compare an array of mongoose objects
-var idsMatch = function(arr1, arr2) {
-	assert.equal(arr1.length, arr2.length);
-
-	var arr1IDs = pluckIds(arr1);
-	var arr2IDs = pluckIds(arr2);
-	
-	var diff = _.difference(arr1IDs, arr2IDs);
-	assert.equal(diff.length, 0);
-};
-
-var pluckIds = function(array) {
-	return array.map(function(obj) { return obj._id.toString(); });
-};
-
-//compare two mongoose objects using _id
-var idMatch = function(obj1, obj2) {
-	var compare = obj1._id.equals(obj2._id);
-	assert(compare);
-};
