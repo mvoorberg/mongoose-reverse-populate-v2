@@ -1,7 +1,6 @@
 # Mongoose Reverse Populate
 
 [![Build Status](https://travis-ci.org/4umfreak/mongoose-reverse-populate.svg?branch=master)](https://travis-ci.org/4umfreak/mongoose-reverse-populate)
-
 [![Coverage Status](https://coveralls.io/repos/github/4umfreak/mongoose-reverse-populate/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/mongoose-reverse-populate?branch=master)
 
 This module allows you to 'populate' a mongoose model (referred to as the 'model to populate') where the relationship ids are stored on another mongoose model that is related to this model (referred to as the 'related model').
