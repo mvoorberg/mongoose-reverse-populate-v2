@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Prismatik/mongoose-reverse-populate.git"
+    "url": "git://github.com/4umfreak/mongoose-reverse-populate.git"
   },
   "keywords": [
     "mongo",
@@ -20,9 +20,9 @@
   "author": "Simon Taylor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Prismatik/mongoose-reverse-populate/issues"
+    "url": "https://github.com/4umfreak/mongoose-reverse-populate/issues"
   },
-  "homepage": "https://github.com/Prismatik/mongoose-reverse-populate",
+  "homepage": "https://github.com/4umfreak/mongoose-reverse-populate",
   "devDependencies": {
     "async": "^2.6.1",
     "mocha": "^5.2.0",
