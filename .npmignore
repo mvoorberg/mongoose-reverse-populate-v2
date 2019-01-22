@@ -1,0 +1,12 @@
+test
+examples
+coverage
+docs
+.idea
+.gitattributes
+.npmignore
+.nyc_output
+*.tgz
+*~
+.vscode
+.travis.yml
