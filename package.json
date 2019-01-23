@@ -1,11 +1,11 @@
 {
-  "name": "mongoose-reverse-populate",
+  "name": "mongoose-reverse-populate-v2",
   "version": "1.1.0",
   "description": "This module allows you to 'populate' a mongoose model where the relationship ids are stored on another mongoose model that is related to this model",
   "main": "index.js",
   "scripts": {
     "deploy": "np",
-    "test": "cross-env NODE_ENV=testing DEBUG='transom:*' nyc mocha",
+    "test": "cross-env NODE_ENV=testing DEBUG='-mongoose-reverse*' nyc mocha",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
@@ -26,6 +26,7 @@
   "devDependencies": {
     "async": "^2.6.1",
     "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
     "mocha-lcov-reporter": "^1.3.0",
     "mongoose": "^5.4.5",
@@ -33,7 +34,6 @@
     "nyc": "^13.1.0"
   },
   "dependencies": {
-    "cross-env": "^5.2.0",
     "debug": "^4.1.1"
   },
   "engines": {

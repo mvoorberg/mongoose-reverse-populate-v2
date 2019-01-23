@@ -1,5 +1,5 @@
 'use strict';
-const debug = require('debug')('mongoose-reverse-populate');
+const debug = require('debug')('mongoose-reverse-populate-v2');
 const { keyBy, checkRequired, buildQuery, populateResult } = require('./lib/populateUtils');
 
 function reversePopulate(opts, cb) {
@@ -21,11 +21,14 @@ function reversePopulate(opts, cb) {
     const popResult = populateResult.bind(this, opts.storeWhere, opts.arrayPop);
 	const query = buildQuery(opts);
 
+    debug(`Executing query for reverse-populate.`);
     query.exec(function(err, results) {
         if (err) {
+            debug(`Reverse-populate query failed:`, err.errmsg);
             return cb(err);
         }
         // Map over results (models to be populated)
+		debug(`Populating ${results.length} results on ${opts.modelArray.length} items.`);
         results.forEach((result) => {
             const resultIds = result[opts.idField];
 			const resultArray = resultIds instanceof Array ? resultIds : [resultIds];
@@ -37,7 +40,7 @@ function reversePopulate(opts, cb) {
                 }
             });
         });
-
+		debug(`Finished populating items.`);
         cb(null, opts.modelArray);
     });
 }

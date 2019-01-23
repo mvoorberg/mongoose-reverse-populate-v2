@@ -1,17 +1,15 @@
 const { keyBy, idMatch, idsMatch, rando, getSelectString } = require('../lib/populateUtils');
-const reversePopulate = require('../index.js');
-
+const reversePopulate = require('../index');
 const assert = require('assert');
 const async = require('async');
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-
 describe('Connecting mongoose', function() {
 
 	before(() => {
-		mongoose.connect('mongodb://localhost/mongoose-reverse-populate-test', {
+		mongoose.connect('mongodb://localhost/mongoose-rev-pop-test', {
 			useNewUrlParser: true
 		});		
 	});
