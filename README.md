@@ -9,9 +9,9 @@
 > Updates to tests and the README should help new users understand why this is needed and how it works.
 
 
-This module allows you to 'populate' a mongoose model (referred to as the 'model to populate') where the relationship ids are stored on another mongoose model that is related to this model (referred to as the 'related model').
+This module allows you to 'populate' a mongoose model (referred to as the 'Parent') where the relationship ids are stored on another mongoose model (referred to as the 'Child').
 
-For example, you have an Authors Model and a Posts Model where the Posts Model includes an authorId.
+For example, you have an Authors Model and a Posts Model where Posts includes an authorId.
 
 ![Datamodel](./test/datamodel.png)
 
