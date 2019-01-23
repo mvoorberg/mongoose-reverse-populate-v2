@@ -80,7 +80,7 @@ This way we can get all the data we need in only `2` database queries, rather th
 
 ## Where are the populated models?
 
-You will notice if you perform a `console.log()` statement on your Parent documents after using `.reversePopulate()` that it appears as if Child documents were not loaded. This is because the property where the Child documnents are added is not defined in the schema and therefore filtered out in the `.toObject()` or `.toJSON()` transforms.
+You will notice if you perform a `console.log()` statement on your Parent documents after using `.reversePopulate()` that it appears as if Child documents were not loaded. This is because the property where the Child documents are added is not defined in the schema and therefore filtered out in the `.toObject()` or `.toJSON()` transforms.
 
 In the above, if you try to `console.log(popAuthors);` they will appear without a `.posts` property. However, if you loop through `popAuthors` and log the `posts` property of each author you will see the results as expected.
 
