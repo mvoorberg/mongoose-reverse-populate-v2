@@ -1,7 +1,13 @@
-# Mongoose Reverse Populate
+# Mongoose Reverse Populate v2
 
 [![Build Status](https://travis-ci.org/4umfreak/mongoose-reverse-populate.svg?branch=master)](https://travis-ci.org/4umfreak/mongoose-reverse-populate)
 [![Coverage Status](https://coveralls.io/repos/github/4umfreak/mongoose-reverse-populate/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/mongoose-reverse-populate?branch=master)
+
+> ## Why *v2*?
+> The previous maintainer was no longer using the module and had lost access to the repository. 
+> NPM audit was highlighting some security concerns with the stale version of lodash being used so I've re-written the code without lodash but maintaining the exact same call spec and behaviours.
+> Updates to tests and the README should help new users understand why this is needed and how it works.
+
 
 This module allows you to 'populate' a mongoose model (referred to as the 'model to populate') where the relationship ids are stored on another mongoose model that is related to this model (referred to as the 'related model').
 
@@ -13,8 +19,9 @@ Note: An Author can have many Posts but a Post can only have one Author.
 
 You can use a standard [`.populate()`](https://mongoosejs.com/docs/populate.html) call if you wish to query Posts and populate the Author for each. However, this method doesn't work if you want to query Authors and include all of each Author's Posts because the `ref` resides on the wrong model.
 
-## Using the function
+I've [seen this addressed in the Mongoose docs](https://mongoosejs.com/docs/populate.html) by storing an Array of PostIds on the Author model but this can easily get out of sync with what's stored in Posts.authorId and isn't recommended.
 
+## Using the function
 ```
 const reversePopulate = require('mongoose-reverse-populate-v2');
 
