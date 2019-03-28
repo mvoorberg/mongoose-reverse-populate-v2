@@ -1,7 +1,7 @@
 # Mongoose Reverse Populate v2
 
-[![Build Status](https://travis-ci.org/4umfreak/mongoose-reverse-populate.svg?branch=master)](https://travis-ci.org/4umfreak/mongoose-reverse-populate)
-[![Coverage Status](https://coveralls.io/repos/github/4umfreak/mongoose-reverse-populate/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/mongoose-reverse-populate?branch=master)
+[![Build Status](https://travis-ci.org/4umfreak/mongoose-reverse-populate-v2.svg?branch=master)](https://travis-ci.org/4umfreak/mongoose-reverse-populate-v2)
+[![Coverage Status](https://coveralls.io/repos/github/4umfreak/mongoose-reverse-populate-v2/badge.svg?branch=master)](https://coveralls.io/github/4umfreak/mongoose-reverse-populate-v2?branch=master)
 
 > ## Why *v2*?
 > The previous maintainer was no longer using the module and had lost access to the repository. 

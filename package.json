@@ -10,19 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/4umfreak/mongoose-reverse-populate.git"
+    "url": "git://github.com/4umfreak/mongoose-reverse-populate-v2.git"
   },
   "keywords": [
     "mongo",
     "mongoose",
     "populate"
   ],
-  "author": "Simon Taylor",
+  "author": "Mark Voorberg",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/4umfreak/mongoose-reverse-populate/issues"
+    "url": "https://github.com/4umfreak/mongoose-reverse-populate-v2/issues"
   },
-  "homepage": "https://github.com/4umfreak/mongoose-reverse-populate",
+  "homepage": "https://github.com/4umfreak/mongoose-reverse-populate-v2",
   "devDependencies": {
     "async": "^2.6.2",
     "coveralls": "^3.0.3",
