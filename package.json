@@ -24,14 +24,14 @@
   },
   "homepage": "https://github.com/4umfreak/mongoose-reverse-populate",
   "devDependencies": {
-    "async": "^2.6.1",
-    "coveralls": "^3.0.2",
+    "async": "^2.6.2",
+    "coveralls": "^3.0.3",
     "cross-env": "^5.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.2",
     "mocha-lcov-reporter": "^1.3.0",
-    "mongoose": "^5.4.5",
-    "np": "^4.0.1",
-    "nyc": "^13.1.0"
+    "mongoose": "^5.4.20",
+    "np": "^4.0.2",
+    "nyc": "^13.3.0"
   },
   "dependencies": {
     "debug": "^4.1.1"
